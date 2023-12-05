@@ -11,28 +11,46 @@ function App() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const handleSubmit = () => {
-    if (!email || !nickname) {
-      setErrorMessage("Sähköposti ja nimimerkki ovat pakollisia!");
+  const handleSubmit = async () => {
+    if (!email || !nickname || !feedback || !rating) {
+      setErrorMessage("Kaikki kentät ovat pakollisia!");
       setSuccessMessage("");
       return;
     }
 
-    setSuccessMessage("Palautteesi on lähetetty onnistuneesti!");
+    try {
+      const response = await fetch("http://......", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          nickname,
+          feedback,
+          rating,
+        }),
+      });
 
-    setEmail("");
-    setNickname("");
-    setFeedback("");
-    setRating(null);
-    setHover(null);
-    setErrorMessage("");
+      if (response.ok) {
+        setSuccessMessage("Palautteesi on lähetetty onnistuneesti!");
+        setErrorMessage("");
+      } else {
+        setErrorMessage("Palautteen lähettäminen epäonnistui. Yritä uudelleen.");
+        setSuccessMessage("");
+      }
+    } catch (error) {
+      console.error("Virhe palautteen lähetyksessä:", error);
+      setErrorMessage("Jotain meni pieleen. Yritä myöhemmin uudelleen.");
+      setSuccessMessage("");
+    }
   };
 
   return (
     <div className="feedback">
       <h2>Jätä meille asiakaspalautetta:</h2>
 
-      <h3>Jätä sähköpostisi. Tämä ei näy muille.</h3>
+      <h3>Jätä sähköpostisi, jos haluat että otamme yhteyttä. Tämä ei näy muille.</h3>
       <input
         type="email"
         placeholder="sähköposti"
@@ -42,7 +60,7 @@ function App() {
       />
       <br></br>
 
-      <h3>Lisää nimimerkki.</h3>
+      <h3>Lisää nimimerkki</h3>
       <input
         placeholder="nimimerkki"
         style={{ width: "400px" }}
@@ -82,8 +100,7 @@ function App() {
       })}
 
       <button onClick={handleSubmit}>Lähetä palautetta</button>
-      
-       
+
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
       {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
     </div>
